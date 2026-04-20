@@ -38,11 +38,9 @@
 
         .hidden { display: none; }
 
-        /* Stats & Feedback */
         .stats-bar { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
         .stars { font-size: 24px; color: gold; margin-bottom: 10px; }
 
-        /* Controls */
         button {
             padding: 12px 20px;
             font-family: 'Quicksand', sans-serif;
@@ -68,7 +66,6 @@
             outline: none;
         }
 
-        /* Color Game Bubbles */
         .color-bubble {
             width: 80px;
             height: 80px;
@@ -80,17 +77,13 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
-        .color-bubble:hover { transform: scale(1.1); }
 
-        /* Shape Styles */
         .shape { display: inline-block; margin: 15px; cursor: pointer; transition: transform 0.2s; }
-        .shape:hover { transform: scale(1.1); }
         .circle { width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; }
         .square { width: 60px; height: 60px; background: #3498db; }
         .triangle { width: 0; height: 0; border-left: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 60px solid #2ecc71; }
         .diamond { width: 50px; height: 50px; background: #f1c40f; transform: rotate(45deg); margin: 20px; }
 
-        /* Memory Grid */
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
         .card { 
             height: 80px; background: var(--primary); border-radius: 12px; 
@@ -98,7 +91,7 @@
             font-size: 30px; cursor: pointer; color: transparent; transition: 0.3s;
         }
         .card.flipped { background: white; color: initial; border: 2px solid var(--primary); }
-        .card.matched { background: var(--success); color: white; cursor: default; }
+        .card.matched { background: var(--success) !important; color: white !important; cursor: default; }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .wrong { animation: shake 0.3s; }
@@ -109,8 +102,8 @@
     <h1>🎮 Kids Academy Pro</h1>
 
     <div id="menu" class="game-container">
-        <div class="stars" id="menu-stars">⭐⭐⭐⭐⭐</div>
-        <p>🏆 All-Time High Score: <span id="high-score">0</span></p>
+        <div class="stars" id="menu-stars">⭐</div>
+        <p>🏆 High Score: <span id="high-score-val">0</span></p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <button onclick="startGame('math')">➕ Math Fun</button>
             <button onclick="startGame('color')">🎨 Color Mix</button>
@@ -124,15 +117,13 @@
     <div id="game-board" class="game-container hidden">
         <div class="stats-bar">
             <span>❤️ <span id="lives">3</span></span>
-            <span id="game-title">Game</span>
+            <span id="game-title">GAME</span>
             <span>⭐ <span id="score">0</span></span>
         </div>
-        
         <h2 id="question">Question?</h2>
         <div id="action-area"></div>
         <div id="feedback" style="height: 25px; margin: 15px; font-weight: bold; font-size: 1.2rem;"></div>
-        
-        <button style="background:#95a5a6; box-shadow:0 4px 0 #7f8c8d" onclick="endGame()">Quit to Menu</button>
+        <button style="background:#95a5a6; box-shadow:0 4px 0 #7f8c8d" onclick="endGame()">Quit</button>
     </div>
 
     <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
@@ -141,7 +132,7 @@
 <script>
     let state = {
         score: 0, lives: 3, level: 1, 
-        highScore: localStorage.getItem('kidsGameHS') || 0,
+        highScore: parseInt(localStorage.getItem('kidsGameHS')) || 0,
         currentGame: '', 
         correctAnswer: null,
         flippedCards: [],
@@ -151,7 +142,7 @@
     function updateHUD() {
         document.getElementById('score').innerText = state.score;
         document.getElementById('lives').innerText = state.lives;
-        document.getElementById('high-score').innerText = state.highScore;
+        document.getElementById('high-score-val').innerText = state.highScore;
         let starStr = state.score >= 50 ? "⭐⭐⭐⭐⭐" : state.score >= 30 ? "⭐⭐⭐⭐" : state.score >= 20 ? "⭐⭐⭐" : state.score >= 10 ? "⭐⭐" : "⭐";
         document.getElementById('menu-stars').innerText = starStr;
     }
@@ -179,103 +170,78 @@
             let op = Math.random() > 0.5 ? '+' : '-';
             if(op === '-' && n2 > n1) [n1, n2] = [n2, n1];
             state.correctAnswer = op === '+' ? n1 + n2 : n1 - n2;
-            q.innerText = ${n1} ${op} ${n2} = ?;
-            area.innerHTML = <input type="number" id="math-ans" autofocus> <br> <button onclick="checkMath()">Submit</button>;
+            q.innerText = `${n1} ${op} ${n2} = ?`;
+            area.innerHTML = `<input type="number" id="math-ans"> <br> <button onclick="checkMath()">Submit</button>`;
             document.getElementById('math-ans').focus();
         } 
-        
         else if (state.currentGame === 'color') {
-            // Updated Color Logic: Primary -> Secondary -> Advanced
-            const sets = [
-                ['red', 'blue', 'yellow', 'green'], // Level 1
-                ['orange', 'purple', 'pink', 'brown'], // Level 2
-                ['cyan', 'magenta', 'lime', 'gray']  // Level 3
-            ];
-            let currentSet = state.level === 1 ? sets[0] : state.level === 2 ? sets[1] : sets[2];
+            const sets = [['red', 'blue', 'yellow', 'green'], ['orange', 'purple', 'pink', 'brown'], ['cyan', 'magenta', 'lime', 'gray']];
+            let currentSet = sets[Math.min(state.level - 1, 2)];
             let choices = [...currentSet].sort(() => 0.5 - Math.random());
             state.correctAnswer = choices[0];
-            
-            q.innerHTML = Find the <span style="color:${state.correctAnswer}">${state.correctAnswer.toUpperCase()}</span> bubble!;
-            
+            q.innerHTML = `Find the <span style="color:${state.correctAnswer}">${state.correctAnswer.toUpperCase()}</span> bubble!`;
             choices.sort(() => 0.5 - Math.random()).forEach(c => {
-                area.innerHTML += <div class="color-bubble" style="background:${c}" onclick="handleResult('${c}' === state.correctAnswer)"></div>;
+                area.innerHTML += `<div class="color-bubble" style="background:${c}" onclick="handleResult('${c}' === state.correctAnswer)"></div>`;
             });
         }
-
         else if (state.currentGame === 'count') {
             let num = Math.floor(Math.random() * 7) + 2;
             state.correctAnswer = num;
-            const items = ['🍎', '🦆', '⭐', '🎈', '🐸'];
-            let icon = items[Math.floor(Math.random()*items.length)];
-            q.innerText = How many ${icon} can you find?;
-            let grid = <div style="font-size:40px; margin-bottom:20px;">;
+            const icons = ['🍎', '🦆', '⭐', '🎈', '🐸'];
+            let icon = icons[Math.floor(Math.random()*icons.length)];
+            q.innerText = `How many ${icon} can you find?`;
+            let grid = `<div style="font-size:40px; margin-bottom:20px;">`;
             for(let i=0; i<num; i++) grid += icon;
-            area.innerHTML = grid + </div>;
-            for(let i=1; i<=10; i++) area.innerHTML += <button onclick="handleResult(${i}===${num})">${i}</button>;
+            area.innerHTML = grid + `</div>`;
+            for(let i=1; i<=10; i++) area.innerHTML += `<button onclick="handleResult(${i}===${num})">${i}</button>`;
         }
-
         else if (state.currentGame === 'animal') {
-            const anims = [
-                {n:'Dog', s:'Bark', e:'🐶'}, {n:'Cat', s:'Meow', e:'🐱'}, 
-                {n:'Cow', s:'Moo', e:'🐮'}, {n:'Duck', s:'Quack', e:'🦆'},
-                {n:'Lion', s:'Roar', e:'🦁'}, {n:'Pig', s:'Oink', e:'🐷'}
-            ];
+            const anims = [{n:'Dog', s:'Bark', e:'🐶'}, {n:'Cat', s:'Meow', e:'🐱'}, {n:'Cow', s:'Moo', e:'🐮'}, {n:'Duck', s:'Quack', e:'🦆'}, {n:'Lion', s:'Roar', e:'🦁'}, {n:'Pig', s:'Oink', e:'🐷'}];
             let pick = anims[Math.floor(Math.random()*anims.length)];
             state.correctAnswer = pick.n;
-            q.innerText = Which animal says "${pick.s}"?;
-            anims.sort(() => 0.5 - Math.random()).forEach(a => {
-                area.innerHTML += <button style="font-size:40px; padding:10px;" onclick="handleResult('${a.n}'==='${pick.n}')">${a.e}</button>;
+            q.innerText = `Which animal says "${pick.s}"?`;
+            anims.sort(() => 0.5 - Math.random()).slice(0,4).forEach(a => {
+                area.innerHTML += `<button style="font-size:40px; padding:10px;" onclick="handleResult('${a.n}'==='${pick.n}')">${a.e}</button>`;
             });
         }
-
         else if (state.currentGame === 'shape') {
-            const shapes = [
-                {n:'Circle', c:'circle'}, {n:'Square', c:'square'}, 
-                {n:'Triangle', c:'triangle'}, {n:'Diamond', c:'diamond'}
-            ];
+            const shapes = [{n:'Circle', c:'circle'}, {n:'Square', c:'square'}, {n:'Triangle', c:'triangle'}, {n:'Diamond', c:'diamond'}];
             let pick = shapes[Math.floor(Math.random()*shapes.length)];
             state.correctAnswer = pick.n;
-            q.innerText = Touch the ${pick.n.toUpperCase()}!;
+            q.innerText = `Touch the ${pick.n.toUpperCase()}!`;
             shapes.sort(() => 0.5 - Math.random()).forEach(s => {
-                area.innerHTML += <div class="shape ${s.c}" onclick="handleResult('${s.n}'==='${pick.n}')"></div>;
+                area.innerHTML += `<div class="shape ${s.c}" onclick="handleResult('${s.n}'==='${pick.n}')"></div>`;
             });
         }
-
         else if (state.currentGame === 'memory') {
             q.innerText = "Match the pairs!";
-            state.matchedCount = 0;
-            state.flippedCards = [];
+            state.matchedCount = 0; state.flippedCards = [];
             const icons = ['🍎', '🍎', '🐱', '🐱', '⭐', '⭐', '🎈', '🎈'];
             icons.sort(() => 0.5 - Math.random());
-            let gridHtml = <div class="memory-grid">;
+            let gridHtml = `<div class="memory-grid">`;
             icons.forEach((icon, index) => {
-                gridHtml += <div class="card" id="card-${index}" onclick="flipCard(${index}, '${icon}')">${icon}</div>;
+                gridHtml += `<div class="card" id="card-${index}" onclick="flipCard(${index}, '${icon}')">${icon}</div>`;
             });
-            area.innerHTML = gridHtml + </div>;
+            area.innerHTML = gridHtml + `</div>`;
         }
     }
 
     function flipCard(index, icon) {
-        const card = document.getElementById(card-${index});
+        const card = document.getElementById(`card-${index}`);
         if (card.classList.contains('flipped') || card.classList.contains('matched') || state.flippedCards.length === 2) return;
-
         card.classList.add('flipped');
         state.flippedCards.push({ index, icon });
-
         if (state.flippedCards.length === 2) {
             if (state.flippedCards[0].icon === state.flippedCards[1].icon) {
-                state.flippedCards.forEach(c => document.getElementById(card-${c.index}).classList.add('matched'));
-                state.flippedCards = [];
-                state.matchedCount += 2;
-                state.score += 10;
-                updateHUD();
-                if (state.matchedCount === 😎 {
+                state.flippedCards.forEach(c => document.getElementById(`card-${c.index}`).classList.add('matched'));
+                state.flippedCards = []; state.matchedCount += 2; state.score += 10; updateHUD();
+                if (state.matchedCount === 8) {
                     document.getElementById('feedback').innerText = "🎉 Board Cleared!";
                     setTimeout(nextQuestion, 2000);
                 }
             } else {
                 setTimeout(() => {
-                    state.flippedCards.forEach(c => document.getElementById(card-${c.index}).classList.remove('flipped'));
+                    state.flippedCards.forEach(c => document.getElementById(`card-${c.index}`).classList.remove('flipped'));
                     state.flippedCards = [];
                 }, 800);
             }
@@ -290,13 +256,13 @@
     function handleResult(isCorrect) {
         const fb = document.getElementById('feedback');
         if(isCorrect) {
-            document.getElementById('correctSound').play();
+            try { document.getElementById('correctSound').play(); } catch(e) {}
             fb.innerHTML = "<span style='color:var(--success)'>✅ Correct!</span>";
             state.score += 5;
             if(state.score % 25 === 0) state.level++; 
             setTimeout(nextQuestion, 1200);
         } else {
-            document.getElementById('wrongSound').play();
+            try { document.getElementById('wrongSound').play(); } catch(e) {}
             fb.innerHTML = "<span style='color:var(--danger)'>❌ Try another!</span>";
             state.lives--;
             document.getElementById('game-board').classList.add('wrong');
@@ -312,12 +278,11 @@
             state.highScore = state.score;
             localStorage.setItem('kidsGameHS', state.score);
         }
-        alert("Game Over! Your score: " + state.score);
+        alert("Game Over! Score: " + state.score);
         document.getElementById('menu').classList.remove('hidden');
         document.getElementById('game-board').classList.add('hidden');
         updateHUD();
     }
-
     updateHUD();
 </script>
 </body>
