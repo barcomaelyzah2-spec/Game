@@ -1,355 +1,393 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Fun Learning Games</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Academy Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --success: #00B894;
+            --danger: #D63031;
+            --warning: #FDCB6E;
+            --bg: #F0F2F5;
+        }
 
-<style>
-body{
-  font-family:Arial;
-  text-align:center;
-  background:linear-gradient(to right,#ffecd2,#fcb69f);
-}
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
 
-h1{
-  color:#333;
-}
+        h1 { color: #2D3436; text-shadow: 2px 2px 0px #FFF; margin-top: 20px; }
 
-button{
-  padding:10px 15px;
-  margin:5px;
-  font-size:16px;
-  border-radius:10px;
-  cursor:pointer;
-  border:none;
-  background:#4CAF50;
-  color:white;
-}
+        /* Game Containers */
+        .game-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 20px;
+            border: 4px solid white;
+            transition: transform 0.3s ease;
+        }
 
-button:hover{
-  background:#45a049;
-}
+        .hidden { display: none; }
 
-.hidden{display:none;}
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
 
-.game-box{
-  background:white;
-  padding:15px;
-  border-radius:15px;
-  margin:15px auto;
-  width:350px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
+        .timer-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(4,60px);
-  gap:10px;
-  justify-content:center;
-  margin-top:10px;
-}
+        #timer-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--success);
+            transition: width 0.1s linear, background 0.3s ease;
+        }
 
-.box{
-  width:60px;
-  height:60px;
-  background:lightgray;
-  border-radius:10px;
-  cursor:pointer;
-}
+        /* Buttons */
+        button {
+            padding: 12px 24px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 0px #4834D4;
+            margin: 5px;
+        }
 
-.score, .lives{
-  font-weight:bold;
-  color:#222;
-  margin:5px 0;
-}
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px #4834D4;
+        }
 
-.lives{
-  color:red;
-}
-</style>
+        button:hover { filter: brightness(1.1); }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .wrong-anim { animation: shake 0.3s ease-in-out; }
+
+        @keyframes pop {
+            50% { transform: scale(1.1); }
+        }
+        .correct-anim { animation: pop 0.3s ease-out; }
+
+        /* Specific Game Layouts */
+        .color-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .count-item { font-size: 2rem; margin: 5px; display: inline-block; }
+    </style>
 </head>
-
 <body>
 
-<h1>🎮 Fun Learning Games</h1>
+<h1>🌟 Kids Academy 🌟</h1>
 
-<!-- MENU -->
-<div id="menu" class="game-box">
-<h3>Choose Game:</h3>
-<button onclick="showGame('color')">🎨 Color</button>
-<button onclick="showGame('shape')">🔷 Shape</button>
-<button onclick="showGame('memory')">🧠 Memory</button>
-<button onclick="showGame('count')">🔢 Counting</button>
-<button onclick="showGame('animal')">🐾 Animal</button>
+<div id="menu" class="game-container">
+    <h2 style="margin-top:0">Ready to Play?</h2>
+    <div style="display: grid; gap: 10px;">
+        <button onclick="startGame('color')">🎨 Master of Colors</button>
+        <button onclick="startGame('count')">🔢 Counting King</button>
+        <button onclick="startGame('animal')">🐾 Animal Sounds</button>
+        <button onclick="startGame('shape')">🔷 Shape Hero</button>
+    </div>
 </div>
 
-<!-- COLOR GAME -->
-<div id="color" class="hidden game-box">
-<h2>🎨 Color Game</h2>
-<p class="score">Score: <span id="scoreColor">0</span></p>
-<p class="lives">Lives: <span id="livesColor">3</span></p>
-<p id="colorQ"></p>
-<div>
-<button style="background:red;width:60px;height:60px;" onclick="checkColor('red')"></button>
-<button style="background:blue;width:60px;height:60px;" onclick="checkColor('blue')"></button>
-<button style="background:yellow;width:60px;height:60px;" onclick="checkColor('yellow')"></button>
-<button style="background:green;width:60px;height:60px;" onclick="checkColor('green')"></button>
-<button style="background:purple;width:60px;height:60px;" onclick="checkColor('purple')"></button>
-</div>
-<p id="colorResult"></p>
-<button onclick="back()">Back</button>
+<div id="game-board" class="game-container hidden">
+    <div class="stats-bar">
+        <span>⭐ <span id="score">0</span></span>
+        <span>Level: <span id="level">1</span></span>
+        <span>❤️ <span id="lives">3</span></span>
+    </div>
+    
+    <div class="timer-bar-container">
+        <div id="timer-fill"></div>
+    </div>
+
+    <h2 id="question-text">Question goes here?</h2>
+    
+    <div id="action-area">
+        </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+    <button style="background: #95a5a6; box-shadow: 0 4px 0 #7f8c8d;" onclick="exitToMenu()">Quit</button>
 </div>
 
-<!-- SHAPE GAME -->
-<div id="shape" class="hidden game-box">
-<h2>🔷 Shape Game</h2>
-<p class="score">Score: <span id="scoreShape">0</span></p>
-<p class="lives">Lives: <span id="livesShape">3</span></p>
-<p id="shapeQ"></p>
-<div id="shapeOptions"></div>
-<p id="shapeResult"></p>
-<button onclick="back()">Back</button>
-</div>
-
-<!-- MEMORY GAME -->
-<div id="memory" class="hidden game-box">
-<h2>🧠 Memory Game</h2>
-<p class="score">Score: <span id="scoreMemory">0</span></p>
-<p class="lives">Lives: <span id="livesMemory">3</span></p>
-<div class="grid" id="memoryGrid"></div>
-<p id="memoryResult"></p>
-<button onclick="back()">Back</button>
-</div>
-
-<!-- COUNT GAME -->
-<div id="count" class="hidden game-box">
-<h2>🔢 Counting Game</h2>
-<p class="score">Score: <span id="scoreCount">0</span></p>
-<p class="lives">Lives: <span id="livesCount">3</span></p>
-<p id="countQ"></p>
-<div id="countOptions"></div>
-<p id="countResult"></p>
-<button onclick="back()">Back</button>
-</div>
-
-<!-- ANIMAL GAME -->
-<div id="animal" class="hidden game-box">
-<h2>🐾 Animal Game</h2>
-<p class="score">Score: <span id="scoreAnimal">0</span></p>
-<p class="lives">Lives: <span id="livesAnimal">3</span></p>
-<p id="animalQ"></p>
-<button onclick="animal('cat')">🐱</button>
-<button onclick="animal('dog')">🐶</button>
-<button onclick="animal('cow')">🐮</button>
-<button onclick="animal('duck')">🦆</button>
-<p id="animalResult"></p>
-<button onclick="back()">Back</button>
-</div>
-
-<!-- SOUNDS -->
 <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-4.mp3"></audio>
 <audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
 
+  <div id="menu" class="game-container">
+    <h2 style="margin-top:0">Ready to Play?</h2>
+    <p style="font-weight: bold; color: var(--primary);">🏆 All-Time High Score: <span id="high-score-display">0</span></p>
+    <div style="display: grid; gap: 10px;">
+        </div>
+</div>
 <script>
-let lives = 3;
-let totalScore = 0;
-
-// Reset lives and score for each game
-function resetGame(gameId){
-  lives = 3;
-  totalScore = 0;
-  document.getElementById("scoreColor").innerText = 0;
-  document.getElementById("scoreShape").innerText = 0;
-  document.getElementById("scoreMemory").innerText = 0;
-  document.getElementById("scoreCount").innerText = 0;
-  document.getElementById("scoreAnimal").innerText = 0;
-  
-  document.getElementById("livesColor").innerText = lives;
-  document.getElementById("livesShape").innerText = lives;
-  document.getElementById("livesMemory").innerText = lives;
-  document.getElementById("livesCount").innerText = lives;
-  document.getElementById("livesAnimal").innerText = lives;
-}
-
-// Update score and lives in the current game
-function addScore(game){
-  totalScore += 5;
-  document.getElementById("score"+game).innerText = totalScore;
-}
-
-function loseLife(game){
-  lives--;
-  document.getElementById("lives"+game).innerText = lives;
-  if(lives <= 0){
-    alert("💀 Game Over!");
-    resetGame();
-    back();
-  }
-}
-
-// Navigation
-function showGame(id){
-  document.querySelectorAll(".game-box").forEach(d => d.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  resetGame();
-  if(id==="color") newColorQ();
-  if(id==="shape") loadShapeGame();
-  if(id==="memory") loadMemory();
-  if(id==="count") loadCount();
-  if(id==="animal") newAnimalQ();
-}
-
-function back(){
-  document.querySelectorAll(".game-box").forEach(d => d.classList.add("hidden"));
-  document.getElementById("menu").classList.remove("hidden");
-}
-
-// ========== COLOR GAME ==========
-let colors = ["red","blue","yellow","green","purple"];
-let correctColor = "";
-
-function newColorQ(){
-  correctColor = colors[Math.floor(Math.random() * colors.length)];
-  document.getElementById("colorQ").innerText = "🎯 Click the color: " + correctColor.toUpperCase();
-  document.getElementById("colorResult").innerText = "";
-}
-
-function checkColor(c){
-  if(c === correctColor){
-    document.getElementById("colorResult").innerText = "✅ Correct!";
-    document.getElementById("correctSound").play();
-    addScore("Color");
-    setTimeout(newColorQ, 800);
-  } else{
-    document.getElementById("colorResult").innerText = "❌ Wrong!";
-    document.getElementById("wrongSound").play();
-    loseLife("Color");
-  }
-}
-
-// ========== SHAPE GAME ==========
-let shapes = [
-  {name:"circle", html:'<div style="width:60px;height:60px;background:red;border-radius:50%;"></div>'},
-  {name:"square", html:'<div style="width:60px;height:60px;background:blue;"></div>'},
-  {name:"triangle", html:'<div style="width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:60px solid green;"></div>'},
-  {name:"star", html:'<div style="font-size:40px;">⭐</div>'}
-];
-let correctShape = "";
-
-function loadShapeGame(){
-  let numChoices = 4;
-  let shuffled = [...shapes].sort(() => 0.5 - Math.random());
-  let choices = shuffled.slice(0, numChoices);
-  correctShape = choices[Math.floor(Math.random() * choices.length)].name;
-
-  document.getElementById("shapeQ").innerText = "🎯 Find the: " + correctShape.toUpperCase();
-  document.getElementById("shapeResult").innerText = "";
-
-  let html = "";
-  choices.forEach(shape => {
-    html += `<div onclick="checkShape('${shape.name}')" style="display:inline-block;margin:10px;cursor:pointer;">${shape.html}</div>`;
-  });
-  document.getElementById("shapeOptions").innerHTML = html;
-}
-
-function checkShape(selected){
-  if(selected === correctShape){
-    document.getElementById("shapeResult").innerText = "✅ Correct!";
-    document.getElementById("correctSound").play();
-    addScore("Shape");
-    setTimeout(loadShapeGame, 800);
-  } else{
-    document.getElementById("shapeResult").innerText = "❌ Wrong!";
-    document.getElementById("wrongSound").play();
-    loseLife("Shape");
-  }
-}
-
-// ========== MEMORY GAME ==========
-let grid = document.getElementById("memoryGrid");
-
-function loadMemory(){
-  grid.innerHTML="";
-  let values = ["red","blue","green","yellow","red","blue","green","yellow"];
-  values.sort(() => 0.5 - Math.random());
-  let selected=[];
-
-  values.forEach(color=>{
-    let box=document.createElement("div");
-    box.className="box";
-    box.onclick=function(){
-      box.style.background=color;
-      selected.push({box,color});
-      if(selected.length===2){
-        if(selected[0].color===selected[1].color){
-          addScore("Memory");
-          selected=[];
-        } else{
-          setTimeout(()=>{
-            selected[0].box.style.background="lightgray";
-            selected[1].box.style.background="lightgray";
-            selected=[];
-            loseLife("Memory");
-          },500);
-        }
-      }
+    // Game State
+    let state = {
+        currentGame: '',
+        score: 0,
+        level: 1,
+        lives: 3,
+        timer: 100,
+        timerInterval: null,
+        correctAnswer: null,
+        timeLeft: 10 // seconds
     };
-    grid.appendChild(box);
-  });
+
+    const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink"];
+    const animals = [
+        { s: "Meow", a: "cat", e: "🐱" },
+        { s: "Bark", a: "dog", e: "🐶" },
+        { s: "Moo", a: "cow", e: "🐮" },
+        { s: "Quack", a: "duck", e: "🦆" },
+        { s: "Roar", a: "lion", e: "🦁" }
+    ];
+
+    function startGame(gameType) {
+        state.currentGame = gameType;
+        state.score = 0;
+        state.level = 1;
+        state.lives = 3;
+        state.timeLeft = 10;
+        
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('game-board').classList.remove('hidden');
+        updateStats();
+        nextQuestion();
+    }
+
+    function updateStats() {
+        document.getElementById('score').innerText = state.score;
+        document.getElementById('level').innerText = state.level;
+        document.getElementById('lives').innerText = state.lives;
+    }
+
+    function startTimer() {
+        clearInterval(state.timerInterval);
+        state.timeLeft = Math.max(3, 10 - (state.level * 0.5)); // Gets faster as you level up
+        let currentTotal = state.timeLeft;
+        
+        state.timerInterval = setInterval(() => {
+            state.timeLeft -= 0.1;
+            let percentage = (state.timeLeft / currentTotal) * 100;
+            const fill = document.getElementById('timer-fill');
+            fill.style.width = percentage + "%";
+
+            if (percentage < 30) fill.style.background = "var(--danger)";
+            else fill.style.background = "var(--success)";
+
+            if (state.timeLeft <= 0) {
+                handleWrong();
+            }
+        }, 100);
+    }
+
+    function nextQuestion() {
+        const area = document.getElementById('action-area');
+        const qText = document.getElementById('question-text');
+        area.innerHTML = '';
+        startTimer();
+
+        if (state.currentGame === 'color') {
+            let count = Math.min(colors.length, 2 + state.level);
+            let choices = [...colors].sort(() => 0.5 - Math.random()).slice(0, count);
+            state.correctAnswer = choices[Math.floor(Math.random() * choices.length)];
+            qText.innerText = `Find the ${state.correctAnswer.toUpperCase()} circle!`;
+            
+            choices.forEach(c => {
+                const btn = document.createElement('div');
+                btn.className = 'color-circle';
+                btn.style.backgroundColor = c;
+                btn.onclick = () => checkAnswer(c);
+                area.appendChild(btn);
+            });
+        } 
+        
+        else if (state.currentGame === 'count') {
+            let num = Math.floor(Math.random() * (5 + state.level)) + 1;
+            state.correctAnswer = num;
+            qText.innerText = "How many items do you see?";
+            
+            const display = document.createElement('div');
+            const icons = ['🍎', '⭐️', '🐸', '🍕'];
+            let icon = icons[Math.floor(Math.random()*icons.length)];
+            for(let i=0; i<num; i++) display.innerHTML += `<span class="count-item">${icon}</span>`;
+            area.appendChild(display);
+
+            const btnGrid = document.createElement('div');
+            btnGrid.className = 'btn-grid';
+            let options = [num, num+1, num-1, num+2].filter(n => n > 0).sort(() => 0.5 - Math.random());
+            [...new Set(options)].forEach(opt => {
+                btnGrid.innerHTML += `<button onclick="checkAnswer(${opt})">${opt}</button>`;
+            });
+            area.appendChild(btnGrid);
+        }
+
+        else if (state.currentGame === 'animal') {
+            let pick = animals[Math.floor(Math.random() * animals.length)];
+            state.correctAnswer = pick.a;
+            qText.innerText = `Who says "${pick.s}"?`;
+            
+            const btnGrid = document.createElement('div');
+            btnGrid.className = 'btn-grid';
+            animals.forEach(anim => {
+                btnGrid.innerHTML += `<button onclick="checkAnswer('${anim.a}')" style="font-size:2rem">${anim.e}</button>`;
+            });
+            area.appendChild(btnGrid);
+        }
+    }
+
+    function checkAnswer(val) {
+        if (val === state.correctAnswer) {
+            handleCorrect();
+        } else {
+            handleWrong();
+        }
+    }
+
+    function handleCorrect() {
+        document.getElementById('correctSound').play();
+        state.score += 10 * state.level;
+        if (state.score % 30 === 0) state.level++;
+        
+        const board = document.getElementById('game-board');
+        board.classList.add('correct-anim');
+        setTimeout(() => board.classList.remove('correct-anim'), 300);
+        
+        updateStats();
+        nextQuestion();
+    }
+
+    function handleWrong() {
+        document.getElementById('wrongSound').play();
+        state.lives--;
+        
+        const board = document.getElementById('game-board');
+        board.classList.add('wrong-anim');
+        setTimeout(() => board.classList.remove('wrong-anim'), 300);
+
+        if (state.lives <= 0) {
+            alert(`Game Over! Final Score: ${state.score}`);
+            exitToMenu();
+        } else {
+            updateStats();
+            nextQuestion();
+        }
+    }
+
+    function exitToMenu() {
+        clearInterval(state.timerInterval);
+        document.getElementById('menu').classList.remove('hidden');
+        document.getElementById('game-board').classList.add('hidden');
+    }
+  // 1. Enhanced State with High Score
+let state = {
+    currentGame: '',
+    score: 0,
+    level: 1,
+    lives: 3,
+    timer: 100,
+    timerInterval: null,
+    correctAnswer: null,
+    timeLeft: 10,
+    highScore: localStorage.getItem('kidsAcademyHighScore') || 0 // Load on start
+};
+
+// 2. Function to show high score on the menu
+function displayHighScore() {
+    document.getElementById('high-score-display').innerText = state.highScore;
 }
 
-// ========== COUNT GAME ==========
-function loadCount(){
-  let num=Math.floor(Math.random()*10)+1;
-  document.getElementById("countQ").innerText="Select number: "+num;
-  document.getElementById("countResult").innerText="";
-  let html="";
-  for(let i=1;i<=10;i++){
-    html+=`<button onclick="checkCount(${i},${num})">${i}</button>`;
-  }
-  document.getElementById("countOptions").innerHTML=html;
+// Call this immediately to show the score when the page first opens
+displayHighScore();
+
+// 3. Update the handleWrong function to save the score
+function handleWrong() {
+    document.getElementById('wrongSound').play();
+    state.lives--;
+    
+    const board = document.getElementById('game-board');
+    board.classList.add('wrong-anim');
+    setTimeout(() => board.classList.remove('wrong-anim'), 300);
+
+    if (state.lives <= 0) {
+        checkAndSaveHighScore(); // New check here!
+        alert(`Game Over! Final Score: ${state.score}`);
+        exitToMenu();
+    } else {
+        updateStats();
+        nextQuestion();
+    }
 }
 
-function checkCount(ans,correct){
-  if(ans===correct){
-    document.getElementById("countResult").innerText="✅ Correct!";
-    document.getElementById("correctSound").play();
-    addScore("Count");
-    loadCount();
-  } else{
-    document.getElementById("countResult").innerText="❌ Wrong!";
-    document.getElementById("wrongSound").play();
-    loseLife("Count");
-  }
+// 4. New Logic: Check and Save
+function checkAndSaveHighScore() {
+    if (state.score > state.highScore) {
+        state.highScore = state.score;
+        localStorage.setItem('kidsAcademyHighScore', state.highScore);
+        displayHighScore();
+        // Optional: Add a little celebration flair
+        console.log("New Record Set!"); 
+    }
 }
 
-// ========== ANIMAL GAME ==========
-let animals=[
-  {sound:"Meow", answer:"cat"},
-  {sound:"Bark", answer:"dog"},
-  {sound:"Moo", answer:"cow"},
-  {sound:"Quack", answer:"duck"}
-];
-let currentAnimal;
-
-function newAnimalQ(){
-  currentAnimal = animals[Math.floor(Math.random()*animals.length)];
-  document.getElementById("animalQ").innerText="Which says \""+currentAnimal.sound+"\"?";
-  document.getElementById("animalResult").innerText="";
-}
-
-function animal(a){
-  if(a===currentAnimal.answer){
-    document.getElementById("animalResult").innerText="✅ Correct!";
-    document.getElementById("correctSound").play();
-    addScore("Animal");
-    newAnimalQ();
-  } else{
-    document.getElementById("animalResult").innerText="❌ Wrong!";
-    document.getElementById("wrongSound").play();
-    loseLife("Animal");
-  }
+// 5. Ensure the menu update happens when quitting
+function exitToMenu() {
+    clearInterval(state.timerInterval);
+    checkAndSaveHighScore(); // Check even if they quit early
+    document.getElementById('menu').classList.remove('hidden');
+    document.getElementById('game-board').classList.add('hidden');
+    displayHighScore();
 }
 </script>
-
 </body>
 </html>
